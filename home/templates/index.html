@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real time location tracking</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB4EefaHqFNXl14IAUroAQKvOaubUlKbIc&callback=initMap" async defer></script>
+    <style>
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Realtime Location Tracking</h1>
+    <div id="map"></div>
+
+    <script>
+        let map, marker;
+
+        function initMap() {
+            const defaultLocation = { lat: 20.5937, lng: 78.9629 }; // India default
+
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 15,
+                center: defaultLocation
+            });
+
+            marker = new google.maps.Marker({
+                position: defaultLocation,
+                map: map,
+                title: "Your location"
+            });
+
+            // Start real-time tracking
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(updateLocation, handleError, {
+                    enableHighAccuracy: true,
+                    maximumAge: 0,
+                    timeout: 1000
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+        function updateLocation(position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+            const newPosition = { lat, lng };
+
+            marker.setPosition(newPosition);
+            map.panTo(newPosition);
+
+            console.log("Current location:", newPosition);
+
+            // Optional: send to backend
+            // fetch('/update-location/', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'X-CSRFToken': '{{ csrf_token }}',
+            //     },
+            //     body: JSON.stringify(newPosition)
+            // });
+        }
+
+        function handleError(error) {
+            console.warn("Error getting location:", error.message);
+        }
+    </script>
+</body>
+</html>
